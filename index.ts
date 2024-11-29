@@ -1,8 +1,8 @@
 import dotenv from "dotenv";
+dotenv.config();
+
 import { buildBudgetDates, fetchAllBudgets, fetchBudgetList } from "./src/app/budget";
 import { budgetPlanToCsv, budgetsToCsv } from "./src/app/budget-to-csv";
-
-dotenv.config();
 
 async function main() {
   try {

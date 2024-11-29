@@ -6,23 +6,22 @@ export function parseBudgetResponse(
   budgetPlan: BudgetPlan,
   budgetDates: BudgetDates
 ): { detail: BudgetDetail[]; plan: BudgetPlan } {
-  const currency = budget.currency;
   const dateStr = formatDateForCsv(budget.date);
 
-  return budget._embedded["budget-group"].reduce<{ detail: BudgetDetail[]; plan: BudgetPlan }>(
+  return budget.groups.reduce<{ detail: BudgetDetail[]; plan: BudgetPlan }>(
     (acc, group) => {
-      const details = group._embedded["budget-item"].map<BudgetDetail>((category) => {
+      const details = group.budgetItems.map<BudgetDetail>((category) => {
         let startingBalance = 0,
           amountBudgeted,
           amountTracked,
           amountRemaining;
 
-        if ("starting_balance" in category) {
-          startingBalance = category.starting_balance[currency];
+        if ("carryOverBalance" in category) {
+          startingBalance = category.carryOverBalance;
         }
-        amountBudgeted = category.amount_budgeted[currency];
-        amountTracked = category._embedded.allocation.reduce((sum, allocation) => {
-          sum += allocation.amount[currency];
+        amountBudgeted = category.amountBudgeted;
+        amountTracked = category.allocations.reduce((sum, allocation) => {
+          sum += allocation.amount;
           return sum;
         }, 0);
         if (category.type === "income") {

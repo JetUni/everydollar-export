@@ -24,7 +24,8 @@
     "printWidth": 120
   },
   "dependencies": {
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "tough-cookie": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.10.4",

@@ -14,15 +14,18 @@ import { parseBudgetResponse } from "./parse-budget";
  * Use internal Everydollar API to fetch a list of budgets for user.
  */
 export async function fetchBudgetList(): Promise<BudgetsResponse[]> {
-  const response = await makeEverydollarApiRequest<BudgetsListApiResponse>("/budget/budgets", {
+  const response = await makeEverydollarApiRequest<BudgetsListApiResponse>("/budgets", {
     method: "GET",
   });
   const json = await response.json();
 
-  return json._embedded.budget.map((budget) => ({
-    date: budget.date,
-    id: budget._links.self.href.split(":").at(-1)!,
-  }));
+  const budgetExistence = json.budgetExistence;
+  const years = Object.keys(budgetExistence).sort();
+
+  return years.flatMap((year) => {
+    const months = Object.keys(budgetExistence[year]);
+    return months.map((month) => ({ date: `${year}-${month.padStart(2, "0")}-01`, id: budgetExistence[year][month] }));
+  });
 }
 
 export async function fetchAllBudgets(budgets: BudgetsResponse[], budgetDates: BudgetDates) {
@@ -34,9 +37,14 @@ export async function fetchAllBudgets(budgets: BudgetsResponse[], budgetDates: B
 
   const responses = await Promise.all(
     budgets.map(async (budget) => {
-      return makeEverydollarApiRequest<BudgetApiResponse>(`/budget/budgets/${budget.id}`, {
-        method: "GET",
-      });
+      const urlSearchParams = new URLSearchParams();
+      urlSearchParams.append("date", budget.date);
+      return makeEverydollarApiRequest<BudgetApiResponse>(
+        `/budgets/search/getBudgetByDate?${urlSearchParams.toString()}`,
+        {
+          method: "GET",
+        }
+      );
     })
   );
   const budgetApiResponses = await Promise.all(
