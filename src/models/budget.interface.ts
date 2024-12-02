@@ -33,6 +33,7 @@ type BudgetCategoryType = "income" | "expense" | "sinking_fund" | "debt";
 
 interface BudgetCategory {
   amountBudgeted: number;
+  id: string;
   label: string;
   note?: string;
   type: BudgetCategoryType;
@@ -115,3 +116,5 @@ export interface BudgetPlan {
     };
   };
 }
+
+export type PlanByItemId = Record<string, { date: string; groupLabel: string; categoryLabel: string }>;

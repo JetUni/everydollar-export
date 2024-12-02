@@ -29,6 +29,7 @@ export const makeEverydollarApiRequest = async <T>(path: string, options: Reques
   });
 
   if (!response.ok) {
+    console.warn("response was unsuccessful", url, options, headers, response);
     if (response.status === 401) {
       console.error(response.statusText);
       process.exit(1);

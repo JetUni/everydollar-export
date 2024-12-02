@@ -1,14 +1,15 @@
-import { BudgetApiResponse, BudgetDates, BudgetDetail, BudgetPlan } from "../models/budget.interface";
+import { BudgetApiResponse, BudgetDates, BudgetDetail, BudgetPlan, PlanByItemId } from "../models/budget.interface";
 import { formatDateForCsv } from "../utils/date";
 
 export function parseBudgetResponse(
   budget: BudgetApiResponse,
   budgetPlan: BudgetPlan,
-  budgetDates: BudgetDates
+  budgetDates: BudgetDates,
+  budgetByCategoryId: PlanByItemId
 ): { detail: BudgetDetail[]; plan: BudgetPlan } {
   const dateStr = formatDateForCsv(budget.date);
 
-  return budget.groups.reduce<{ detail: BudgetDetail[]; plan: BudgetPlan }>(
+  return budget.groups.reduce<{ detail: BudgetDetail[]; plan: BudgetPlan; budgetByCategoryId: PlanByItemId }>(
     (acc, group) => {
       const details = group.budgetItems.map<BudgetDetail>((category) => {
         let startingBalance = 0,
@@ -46,6 +47,13 @@ export function parseBudgetResponse(
         acc.plan[group.label].categories[category.label].dates[dateStr] = `${amountBudgeted / 100}`;
         acc.plan[group.label].categories[category.label].track = track;
 
+        const categoryId = category.id.split(":").at(-1);
+        acc.budgetByCategoryId[categoryId!] = {
+          date: budget.date,
+          groupLabel: group.label,
+          categoryLabel: category.label,
+        };
+
         return {
           group: group.label,
           category: category.label,
@@ -62,6 +70,6 @@ export function parseBudgetResponse(
 
       return acc;
     },
-    { detail: [], plan: budgetPlan }
+    { detail: [], plan: budgetPlan, budgetByCategoryId }
   );
 }

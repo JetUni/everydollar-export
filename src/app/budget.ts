@@ -5,6 +5,7 @@ import {
   BudgetPlan,
   BudgetsListApiResponse,
   BudgetsResponse,
+  PlanByItemId,
 } from "../models/budget.interface";
 import { makeEverydollarApiRequest } from "../utils/auth";
 import { formatDateForCsv } from "../utils/date";
@@ -14,9 +15,7 @@ import { parseBudgetResponse } from "./parse-budget";
  * Use internal Everydollar API to fetch a list of budgets for user.
  */
 export async function fetchBudgetList(): Promise<BudgetsResponse[]> {
-  const response = await makeEverydollarApiRequest<BudgetsListApiResponse>("/budgets", {
-    method: "GET",
-  });
+  const response = await makeEverydollarApiRequest<BudgetsListApiResponse>("/budgets", { method: "GET" });
   const json = await response.json();
 
   const budgetExistence = json.budgetExistence;
@@ -34,6 +33,7 @@ export async function fetchAllBudgets(budgets: BudgetsResponse[], budgetDates: B
   }
   const budgetDetail: { [date: string]: BudgetDetail[] } = {};
   const budgetPlan: BudgetPlan = {};
+  const budgetByCategoryId: PlanByItemId = {};
 
   const responses = await Promise.all(
     budgets.map(async (budget) => {
@@ -41,9 +41,7 @@ export async function fetchAllBudgets(budgets: BudgetsResponse[], budgetDates: B
       urlSearchParams.append("date", budget.date);
       return makeEverydollarApiRequest<BudgetApiResponse>(
         `/budgets/search/getBudgetByDate?${urlSearchParams.toString()}`,
-        {
-          method: "GET",
-        }
+        { method: "GET" }
       );
     })
   );
@@ -54,11 +52,11 @@ export async function fetchAllBudgets(budgets: BudgetsResponse[], budgetDates: B
   );
 
   budgetApiResponses.forEach((response) => {
-    const budgetGroups = parseBudgetResponse(response, budgetPlan, budgetDates);
+    const budgetGroups = parseBudgetResponse(response, budgetPlan, budgetDates, budgetByCategoryId);
     budgetDetail[response.date] = budgetGroups.detail;
   });
 
-  return { budgetDetail, budgetPlan };
+  return { budgetDetail, budgetPlan, budgetByCategoryId };
 }
 
 export function buildBudgetDates(budgets: BudgetsResponse[]) {
