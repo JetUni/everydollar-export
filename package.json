@@ -24,12 +24,12 @@
     "printWidth": 120
   },
   "dependencies": {
-    "dotenv": "^16.3.1",
+    "dotenv": "^16.4.5",
     "tough-cookie": "^5.0.0"
   },
   "devDependencies": {
-    "@types/node": "^20.10.4",
+    "@types/node": "^22.10.1",
     "ts-node": "^10.9.2",
-    "typescript": "^5.3.3"
+    "typescript": "^5.7.2"
   }
 }
