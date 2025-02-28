@@ -6,7 +6,7 @@ export function parseBudgetResponse(
   budgetPlan: BudgetPlan,
   budgetDates: BudgetDates,
   budgetByCategoryId: PlanByItemId
-): { detail: BudgetDetail[]; plan: BudgetPlan } {
+): { detail: BudgetDetail[]; plan: BudgetPlan; budgetByCategoryId: PlanByItemId } {
   const dateStr = formatDateForCsv(budget.date);
 
   return budget.groups.reduce<{ detail: BudgetDetail[]; plan: BudgetPlan; budgetByCategoryId: PlanByItemId }>(
